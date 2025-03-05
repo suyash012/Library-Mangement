@@ -91,6 +91,14 @@ export default function Dashboard() {
                 {userRole === 'admin' && (
                   <NavLink to="/maintenance/users">Maintenance</NavLink>
                 )}
+                <NavLink to="/help">
+                  <div className="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                    </svg>
+                    Help
+                  </div>
+                </NavLink>
               </div>
             </div>
             <div className="flex items-center">
@@ -230,6 +238,59 @@ export default function Dashboard() {
                 <Navigate to="/" replace />
             } 
           />
+          
+          {/* Help */}
+          <Route path="/help" element={
+            <div className="p-6 bg-white rounded-lg shadow-md">
+              <h1 className="text-2xl font-bold mb-6">System Flow Chart</h1>
+              <div className="mb-8">
+                <p className="text-gray-600 mb-4">This chart shows the overall flow of the Library Management System:</p>
+                <div className="bg-gray-50 p-6 rounded-lg border">
+                  <div className="flex flex-col items-center">
+                    <div className="p-4 bg-blue-100 rounded-lg mb-4 w-64 text-center">Login/Authentication</div>
+                    <div className="h-8 border-l-2 border-gray-400"></div>
+                    <div className="p-4 bg-green-100 rounded-lg mb-4 w-64 text-center">Dashboard</div>
+                    <div className="grid grid-cols-3 gap-8">
+                      <div className="flex flex-col items-center">
+                        <div className="h-8 border-l-2 border-gray-400"></div>
+                        <div className="p-4 bg-indigo-100 rounded-lg w-64 text-center">Book Management</div>
+                        <div className="h-8 border-l-2 border-gray-400"></div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="p-2 bg-indigo-50 rounded w-28 text-center text-xs">Add Book</div>
+                          <div className="p-2 bg-indigo-50 rounded w-28 text-center text-xs">Update Book</div>
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <div className="h-8 border-l-2 border-gray-400"></div>
+                        <div className="p-4 bg-purple-100 rounded-lg w-64 text-center">Transactions</div>
+                        <div className="h-8 border-l-2 border-gray-400"></div>
+                        <div className="grid grid-cols-3 gap-2">
+                          <div className="p-2 bg-purple-50 rounded w-20 text-center text-xs">Issue</div>
+                          <div className="p-2 bg-purple-50 rounded w-20 text-center text-xs">Return</div>
+                          <div className="p-2 bg-purple-50 rounded w-20 text-center text-xs">Fine</div>
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <div className="h-8 border-l-2 border-gray-400"></div>
+                        <div className="p-4 bg-amber-100 rounded-lg w-64 text-center">Memberships</div>
+                        <div className="h-8 border-l-2 border-gray-400"></div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="p-2 bg-amber-50 rounded w-28 text-center text-xs">Add</div>
+                          <div className="p-2 bg-amber-50 rounded w-28 text-center text-xs">Update</div>
+                        </div>
+                      </div>
+                    </div>
+                    {userRole === 'admin' && (
+                      <div className="mt-8">
+                        <div className="h-8 border-l-2 border-gray-400"></div>
+                        <div className="p-4 bg-red-100 rounded-lg w-64 text-center">Admin Maintenance</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          } />
           
           {/* Fallback route */}
           <Route path="*" element={<Navigate to="/" replace />} />
