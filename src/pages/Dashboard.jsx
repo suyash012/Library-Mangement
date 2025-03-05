@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, Link, useNavigate, Navigate } from 'react-router-dom';
+import { Routes, Route, Link, useNavigate, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import BookList from './books/BookList';
@@ -12,6 +12,25 @@ import PayFine from './transactions/PayFine';
 import AddMembership from './membership/AddMembership';
 import UpdateMembership from './membership/UpdateMembership';
 import Home from './Home';
+
+const NavLink = ({ to, children }) => {
+  const location = useLocation();
+  const isActive = location.pathname === to || 
+    (to !== '/' && location.pathname.startsWith(to));
+  
+  return (
+    <Link
+      to={to}
+      className={`${
+        isActive 
+          ? 'border-indigo-500 text-indigo-700 font-medium' 
+          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+      } inline-flex items-center px-1 pt-1 border-b-2 text-sm transition-colors duration-200`}
+    >
+      {children}
+    </Link>
+  );
+};
 
 export default function Dashboard() {
   const { user, signOut } = useAuth();
@@ -58,52 +77,30 @@ export default function Dashboard() {
           <div className="flex justify-between h-16">
             <div className="flex">
               <div className="flex-shrink-0 flex items-center">
-                <span className="text-xl font-bold">Library System</span>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-indigo-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                <span className="text-xl font-bold text-gray-800">Library MS</span>
               </div>
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                <Link
-                  to="/"
-                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  to="/books"
-                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                >
-                  Books
-                </Link>
-                <Link
-                  to="/memberships"
-                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                >
-                  Memberships
-                </Link>
-                <Link
-                  to="/transactions"
-                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                >
-                  Transactions
-                </Link>
-                <Link
-                  to="/reports/transactions"
-                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                >
-                  Reports
-                </Link>
+                <NavLink to="/">Dashboard</NavLink>
+                <NavLink to="/books">Books</NavLink>
+                <NavLink to="/memberships">Memberships</NavLink>
+                <NavLink to="/transactions">Transactions</NavLink>
+                <NavLink to="/reports/transactions">Reports</NavLink>
                 {userRole === 'admin' && (
-                  <Link
-                    to="/maintenance/users"
-                    className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                  >
-                    Maintenance
-                  </Link>
+                  <NavLink to="/maintenance/users">Maintenance</NavLink>
                 )}
               </div>
             </div>
             <div className="flex items-center">
-              <span className="mr-4 text-sm text-gray-500">
-                {user?.email} ({userRole})
+              <span className="mr-4 text-sm text-gray-700 bg-gray-100 px-3 py-1 rounded-full">
+                {user?.email} 
+                <span className={`ml-1 px-2 py-0.5 rounded-full text-xs ${
+                  userRole === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800'
+                }`}>
+                  {userRole}
+                </span>
               </span>
               <button
                 onClick={handleSignOut}
@@ -124,33 +121,98 @@ export default function Dashboard() {
           <Route path="/books/edit/:id" element={<BookForm />} />
           
           {/* Transactions */}
-          <Route path="/transactions" element={<div className="flex flex-col space-y-4">
-            <h1 className="text-2xl font-bold">Transactions</h1>
-            <div className="flex space-x-4">
-              <Link to="/transactions/issue" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                Issue Book
-              </Link>
-              <Link to="/transactions/return" className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
-                Return Book
-              </Link>
+          <Route path="/transactions" element={
+            <div className="p-6 bg-white rounded-lg shadow-md">
+              <h1 className="text-2xl font-bold mb-6">Transactions</h1>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="bg-gradient-to-r from-blue-400 to-blue-600 rounded-lg shadow-md overflow-hidden transition-transform hover:scale-105">
+                  <div className="p-6 text-white">
+                    <div className="text-3xl mb-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                      </svg>
+                    </div>
+                    <h2 className="text-xl font-semibold mb-2">Issue Book</h2>
+                    <p className="mb-4">Issue a new book to a member</p>
+                    <Link to="/transactions/issue" className="inline-block px-4 py-2 bg-white text-blue-500 rounded hover:bg-blue-50 transition-colors">
+                      Issue Now
+                    </Link>
+                  </div>
+                </div>
+                
+                <div className="bg-gradient-to-r from-green-400 to-green-600 rounded-lg shadow-md overflow-hidden transition-transform hover:scale-105">
+                  <div className="p-6 text-white">
+                    <div className="text-3xl mb-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                    </div>
+                    <h2 className="text-xl font-semibold mb-2">Return Book</h2>
+                    <p className="mb-4">Process a book return</p>
+                    <Link to="/transactions/return" className="inline-block px-4 py-2 bg-white text-green-500 rounded hover:bg-green-50 transition-colors">
+                      Return Book
+                    </Link>
+                  </div>
+                </div>
+                
+                <div className="bg-gradient-to-r from-purple-400 to-purple-600 rounded-lg shadow-md overflow-hidden transition-transform hover:scale-105">
+                  <div className="p-6 text-white">
+                    <div className="text-3xl mb-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <h2 className="text-xl font-semibold mb-2">View History</h2>
+                    <p className="mb-4">Check transaction history</p>
+                    <Link to="/reports/transactions" className="inline-block px-4 py-2 bg-white text-purple-500 rounded hover:bg-purple-50 transition-colors">
+                      View Reports
+                    </Link>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>} />
+          } />
           <Route path="/transactions/issue" element={<IssueBook />} />
           <Route path="/transactions/return" element={<ReturnBook />} />
           <Route path="/transactions/pay-fine/:id" element={<PayFine />} />
           
           {/* Memberships */}
-          <Route path="/memberships" element={<div className="flex flex-col space-y-4">
-            <h1 className="text-2xl font-bold">Memberships</h1>
-            <div className="flex space-x-4">
-              <Link to="/memberships/add" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                Add Membership
-              </Link>
-              <Link to="/memberships/update" className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
-                Update Membership
-              </Link>
+          <Route path="/memberships" element={
+            <div className="p-6 bg-white rounded-lg shadow-md">
+              <h1 className="text-2xl font-bold mb-6">Memberships</h1>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-gradient-to-r from-indigo-400 to-indigo-600 rounded-lg shadow-md overflow-hidden transition-transform hover:scale-105">
+                  <div className="p-6 text-white">
+                    <div className="text-3xl mb-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                      </svg>
+                    </div>
+                    <h2 className="text-xl font-semibold mb-2">Add Membership</h2>
+                    <p className="mb-4">Register a new membership</p>
+                    <Link to="/memberships/add" className="inline-block px-4 py-2 bg-white text-indigo-500 rounded hover:bg-indigo-50 transition-colors">
+                      Add Now
+                    </Link>
+                  </div>
+                </div>
+                
+                <div className="bg-gradient-to-r from-amber-400 to-amber-600 rounded-lg shadow-md overflow-hidden transition-transform hover:scale-105">
+                  <div className="p-6 text-white">
+                    <div className="text-3xl mb-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </div>
+                    <h2 className="text-xl font-semibold mb-2">Update Membership</h2>
+                    <p className="mb-4">Modify existing membership</p>
+                    <Link to="/memberships/update" className="inline-block px-4 py-2 bg-white text-amber-500 rounded hover:bg-amber-50 transition-colors">
+                      Update Now
+                    </Link>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>} />
+          } />
           <Route path="/memberships/add" element={<AddMembership />} />
           <Route path="/memberships/update" element={<UpdateMembership />} />
           
